@@ -1,4 +1,4 @@
-import { GameState, PieceState } from './gameState';
+import { GameState, PieceState, cloneGameState } from './gameState';
 import { getSafeZones, MAX_PATH_INDEX, PLAYER_PATHS } from '../constants/board';
 
 // Checks if moving a piece to a target square results in a kill
@@ -36,8 +36,8 @@ export const executeMove = (
     pieceId: string,
     rollValue: number
 ): { state: GameState; scoredPoint: boolean } => {
-    // Deep clone state to avoid mutation (Redux style)
-    const newState = JSON.parse(JSON.stringify(gameState)) as GameState;
+    // Clone state to avoid mutation (Redux style)
+    const newState = cloneGameState(gameState);
 
     const playerIndex = newState.players.findIndex(p => p.id === newState.currentTurnPlayerId);
     const player = newState.players[playerIndex];
