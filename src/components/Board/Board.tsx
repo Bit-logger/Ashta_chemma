@@ -16,38 +16,14 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
     const cellSize = boardSize / BOARD_SIZE;
 
     // Helper to get center coordinates of a specific cell (0-24)
-    const getCellCenter = (index: number) => {
+    const getCellCenter = React.useCallback((index: number) => {
         const row = Math.floor(index / BOARD_SIZE);
         const col = index % BOARD_SIZE;
         return {
             x: col * cellSize + cellSize / 2,
             y: row * cellSize + cellSize / 2,
         };
-    };
-
-    // Helper to draw the cross (X) for Safe Zones (Kachhas)
-    const renderSafeZoneCross = (index: number) => {
-        const { x, y } = getCellCenter(index);
-        const offset = cellSize * 0.35; // How big the cross is relative to the cell
-        return (
-            <React.Fragment key={`safe-${index}`}>
-                <Line
-                    x1={x - offset} y1={y - offset}
-                    x2={x + offset} y2={y + offset}
-                    stroke="rgba(255, 255, 240, 0.85)" // slightly off-white rice flour
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                />
-                <Line
-                    x1={x + offset} y1={y - offset}
-                    x2={x - offset} y2={y + offset}
-                    stroke="rgba(255, 255, 240, 0.85)"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                />
-            </React.Fragment>
-        );
-    };
+    }, [cellSize]);
 
     // Calculate home positions outside the board for each player
     const getHomeCenter = (playerId: number, pieceIndex: number) => {
@@ -63,8 +39,32 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
         }
     };
 
-    return (
-        <View style={[styles.container, { width: boardSize, height: boardSize }, styles.boardMargin]}>
+    const staticBackground = React.useMemo(() => {
+        // Helper to draw the cross (X) for Safe Zones (Kachhas)
+        const renderSafeZoneCross = (index: number) => {
+            const { x, y } = getCellCenter(index);
+            const offset = cellSize * 0.35; // How big the cross is relative to the cell
+            return (
+                <React.Fragment key={`safe-${index}`}>
+                    <Line
+                        x1={x - offset} y1={y - offset}
+                        x2={x + offset} y2={y + offset}
+                        stroke="rgba(255, 255, 240, 0.85)" // slightly off-white rice flour
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                    />
+                    <Line
+                        x1={x + offset} y1={y - offset}
+                        x2={x - offset} y2={y + offset}
+                        stroke="rgba(255, 255, 240, 0.85)"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                    />
+                </React.Fragment>
+            );
+        };
+
+        return (
             <Svg height="100%" width="100%" style={styles.svgLayer}>
                 {/* Background Ground Texture / Shadow */}
                 <Defs>
@@ -107,6 +107,12 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
                 {/* Render the Safe Zones (Crosses) */}
                 {getSafeZones(gameState.boardType).map((safeIndex: number) => renderSafeZoneCross(safeIndex))}
             </Svg>
+        );
+    }, [boardSize, cellSize, gameState.boardType, getCellCenter]); // Dependencies
+
+    return (
+        <View style={[styles.container, { width: boardSize, height: boardSize }, styles.boardMargin]}>
+            {staticBackground}
 
             {/* Render the Pieces dynamically over the board */}
             {gameState.players
