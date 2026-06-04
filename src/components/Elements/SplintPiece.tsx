@@ -6,7 +6,7 @@ type SplintPieceProps = {
     size?: number;
 };
 
-const SplintPiece: React.FC<SplintPieceProps> = ({ size = 30 }) => {
+const SplintPiece: React.FC<SplintPieceProps> = React.memo(({ size = 30 }) => {
     return (
         <View style={[styles.container, { width: size, height: size }]}>
             <Svg height="100%" width="100%" viewBox="0 0 100 100" style={{ transform: [{ rotate: '45deg' }] }}>
@@ -34,7 +34,8 @@ const SplintPiece: React.FC<SplintPieceProps> = ({ size = 30 }) => {
             </Svg>
         </View>
     );
-};
+});
+SplintPiece.displayName = 'SplintPiece';
 
 const styles = StyleSheet.create({
     container: {

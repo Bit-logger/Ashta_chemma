@@ -6,7 +6,7 @@ type PebblePieceProps = {
     size?: number;
 };
 
-const PebblePiece: React.FC<PebblePieceProps> = ({ size = 26 }) => {
+const PebblePiece: React.FC<PebblePieceProps> = React.memo(({ size = 26 }) => {
     return (
         <View style={[styles.container, { width: size, height: size }]}>
             <Svg height="100%" width="100%" viewBox="0 0 100 100">
@@ -27,7 +27,8 @@ const PebblePiece: React.FC<PebblePieceProps> = ({ size = 26 }) => {
             </Svg>
         </View>
     );
-};
+});
+PebblePiece.displayName = 'PebblePiece';
 
 const styles = StyleSheet.create({
     container: {

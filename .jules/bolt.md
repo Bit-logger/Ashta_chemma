@@ -1,0 +1,3 @@
+## 2026-06-04 - [React Native SVG Background Component Re-rendering Optimization]
+**Learning:** Extracting complex static SVG backgrounds into their own component and wrapping them with `React.memo()` prevents expensive re-renders in parent components that undergo frequent state changes (e.g. piece positions during gameplay), drastically improving performance without sacrificing visual fidelity.
+**Action:** Always identify static visual elements (like game boards, grids, or background textures) within highly dynamic parent components and extract/memoize them early to avoid unnecessary reconciliation and layout calculation overhead.

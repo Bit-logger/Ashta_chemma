@@ -7,7 +7,7 @@ type BanglePieceProps = {
     size?: number;
 };
 
-const BanglePiece: React.FC<BanglePieceProps> = ({ color = '#00AA55', size = 30 }) => {
+const BanglePiece: React.FC<BanglePieceProps> = React.memo(({ color = '#00AA55', size = 30 }) => {
     return (
         <View style={[styles.container, { width: size, height: size }]}>
             <Svg height="100%" width="100%" viewBox="0 0 100 100">
@@ -29,7 +29,8 @@ const BanglePiece: React.FC<BanglePieceProps> = ({ color = '#00AA55', size = 30 
             </Svg>
         </View>
     );
-};
+});
+BanglePiece.displayName = 'BanglePiece';
 
 const styles = StyleSheet.create({
     container: {

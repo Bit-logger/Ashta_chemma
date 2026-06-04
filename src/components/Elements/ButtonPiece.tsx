@@ -7,7 +7,7 @@ type ButtonPieceProps = {
     size?: number;
 };
 
-const ButtonPiece: React.FC<ButtonPieceProps> = ({ color = '#4169E1', size = 28 }) => {
+const ButtonPiece: React.FC<ButtonPieceProps> = React.memo(({ color = '#4169E1', size = 28 }) => {
     return (
         <View style={[styles.container, { width: size, height: size }]}>
             <Svg height="100%" width="100%" viewBox="0 0 100 100">
@@ -40,7 +40,8 @@ const ButtonPiece: React.FC<ButtonPieceProps> = ({ color = '#4169E1', size = 28 
             </Svg>
         </View>
     );
-};
+});
+ButtonPiece.displayName = 'ButtonPiece';
 
 const styles = StyleSheet.create({
     container: {
