@@ -1,0 +1,3 @@
+## 2026-06-05 - [Extract and Memoize Static SVG Layers in React Native Animations]
+**Learning:** React Native struggles to animate components smoothly if complex SVGs (like grid lines and cross markings in a game board) are re-rendered on every frame. When the state changes frequently during an animation, the entire SVG component un-mounts and mounts, leading to dropped frames and severe performance bottlenecks.
+**Action:** Always extract static SVG backgrounds (or other heavy, unchanging static elements) into a separate component and wrap it in `React.memo`. By doing so, the static background will only re-render when its relevant props (`boardSize`, `cellSize`, `boardType`) change, rather than on every state update of the parent container during piece movement.
