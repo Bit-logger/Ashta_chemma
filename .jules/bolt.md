@@ -1,0 +1,3 @@
+## 2024-05-18 - [Optimize SVG Re-rendering]
+**Learning:** In this React Native game application, highly complex static SVGs (such as game board backgrounds with gradients, grids, and safe zone markers) located inside components with dynamic state (like pieces animating/moving) can cause severe frame drops and performance bottlenecks if re-rendered unnecessarily on every state update.
+**Action:** Always extract static and complex SVG elements into separate, decoupled components and wrap them in `React.memo()`. This ensures they only render once unless their fundamental dimensions or types change, freeing up the JS thread for piece movement animations.
