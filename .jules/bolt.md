@@ -1,0 +1,3 @@
+## 2024-03-24 - [React Native Animation Frame Drops from Complex SVGs]
+**Learning:** In this React Native application built with Expo and React Navigation, static complex SVGs (like game board backgrounds with many grid lines and gradients) cause severe frame drops and performance bottlenecks during piece movement animations where the `gameState` is updated frequently (e.g., every 200ms).
+**Action:** Always extract complex, static SVG backgrounds into separate components and wrap them in `React.memo` to ensure they do not re-render unnecessarily when only specific dynamic parts of the UI are changing.
