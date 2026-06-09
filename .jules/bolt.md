@@ -1,0 +1,3 @@
+## 2024-03-05 - [Extracting Static SVGs in React Native]
+**Learning:** In this React Native app, static complex SVGs (like game board backgrounds with lots of lines, rects, and gradients) cause severe frame drops and performance bottlenecks during frequent state updates like piece movement animations.
+**Action:** Always extract static complex SVGs into separate components and wrap them in `React.memo` to prevent unnecessary re-renders when parent components update frequently.
