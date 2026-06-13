@@ -1,0 +1,3 @@
+## 2025-06-13 - Extracted complex SVG in React Native to prevent re-renders
+**Learning:** In this React Native app, static complex SVGs (like game board backgrounds) that are rendered inline within a component like `Board.tsx` cause severe frame drops and performance bottlenecks during piece movement animations because they are re-evaluated on every state change.
+**Action:** Always extract complex, static SVG backgrounds into separate components and wrap them in `React.memo` to prevent unnecessary re-renders when parent state (like `gameState` tracking piece positions) updates frequently.
