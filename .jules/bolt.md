@@ -1,0 +1,3 @@
+## 2024-05-24 - [React Native Expo SVG Performance Bottleneck]
+**Learning:** Static complex SVGs (like the large game board background with gradients, grids, and crosses) cause severe frame drops and performance bottlenecks in this React Native app when they are re-rendered repeatedly during piece movement animations.
+**Action:** Always extract static complex SVGs into separate components and wrap them in `React.memo` to prevent unnecessary re-rendering during frequent state updates like animations.
