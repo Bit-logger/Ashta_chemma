@@ -1,0 +1,3 @@
+## 2025-02-28 - [Memoizing Static SVG Backgrounds]
+**Learning:** Complex SVGs used for background/grid layers can become performance bottlenecks and cause severe frame drops if they re-render on every animation frame (such as during piece movement where the game state continuously updates and gets passed into the top level board component).
+**Action:** Always extract static SVG structures (like boards, backgrounds, grids) into their own separate components wrapped in `React.memo` to ensure they only re-render when their dimensional or configuration properties change, preserving smooth 60fps animations.
