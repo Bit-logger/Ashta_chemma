@@ -1,0 +1,1 @@
+## 2024-05-24 - React Native SVG Render Bottleneck\n**Learning:** Re-rendering static complex SVGs (like game board grids and gradients) is highly expensive in React Native and causes visible frame drops during animations.\n**Action:** Always extract static SVG backgrounds into separate components and wrap them in `React.memo` to prevent re-rendering when parent state changes.
