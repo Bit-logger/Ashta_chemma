@@ -159,8 +159,11 @@ export default function GameScreen({ navigation, route }: Props) {
         // Generate seeds array based on openCount
         const seeds = [false, false, false, false];
         for (let i = 0; i < openCount; i++) { seeds[i] = true; }
-        // Shuffle the seeds array so it looks random visually
-        seeds.sort(() => Math.random() - 0.5);
+        // Shuffle the seeds array so it looks random visually using Fisher-Yates
+        for (let i = seeds.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [seeds[i], seeds[j]] = [seeds[j], seeds[i]];
+        }
 
         // Let the physical seeds bounce and spin for 600ms before reading the result
         setTimeout(() => {
