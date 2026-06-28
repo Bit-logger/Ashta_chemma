@@ -28,7 +28,8 @@ export default function SetupScreen({ navigation }: Props) {
     ]);
 
     const handleNameChange = (id: number, name: string) => {
-        setPlayers(players.map(p => p.id === id ? { ...p, name } : p));
+        const truncatedName = name.slice(0, 20);
+        setPlayers(players.map(p => p.id === id ? { ...p, name: truncatedName } : p));
     };
 
     const handlePieceChange = (id: number, pieceType: string) => {
@@ -93,6 +94,7 @@ export default function SetupScreen({ navigation }: Props) {
                         onChangeText={(text) => handleNameChange(player.id, text)}
                         placeholder="Enter Name"
                         placeholderTextColor="#A9A9A9"
+                        maxLength={20}
                     />
                     <Text style={styles.label}>Select Piece:</Text>
                     <View style={styles.piecesRow}>
