@@ -329,8 +329,6 @@ export default function GameScreen({ navigation, route }: Props) {
 
             animateStep();
 
-        } else {
-            console.log("Invalid move for this piece.");
         }
     };
 
