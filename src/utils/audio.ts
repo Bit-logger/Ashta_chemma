@@ -25,7 +25,7 @@ export const playDiceSound = async () => {
             await diceSound.replayAsync();
         }
     } catch (error) {
-        // ignore
+        console.error("Failed to play dice sound:", error);
     }
 };
 
@@ -35,7 +35,7 @@ export const playMoveSound = async () => {
             await moveSound.replayAsync();
         }
     } catch (error) {
-        // ignore
+        console.error("Failed to play move sound:", error);
     }
 };
 
