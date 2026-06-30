@@ -1,0 +1,3 @@
+## 2026-06-30 - Extracting Static SVG Components
+**Learning:** Static complex SVGs (like game board backgrounds) in this React Native app should be extracted into separate components and wrapped in `React.memo` (with `.displayName` set). Otherwise, they cause severe frame drops and performance bottlenecks during piece movement animations because the entire background re-renders.
+**Action:** Always identify and extract complex static static UI elements (especially SVGs) out of parent components that undergo frequent state changes (like animations), memoizing them to prevent unnecessary re-renders.
