@@ -1,0 +1,3 @@
+## 2024-05-14 - Extracting static complex SVGs for performance
+**Learning:** In this React Native app, static complex SVGs (like game board backgrounds) should be extracted into separate components and wrapped in `React.memo`. Rendering them in the same component as dynamic state (like piece positions) causes severe frame drops and performance bottlenecks during piece movement animations because the entire complex SVG tree re-renders unnecessarily.
+**Action:** Always extract and memoize heavy static visual elements (especially SVGs) away from components that handle frequent state updates, such as animations or drag interactions.
