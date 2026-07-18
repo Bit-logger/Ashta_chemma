@@ -1,0 +1,3 @@
+## 2025-02-14 - React Native SVG Performance Optimization for Animations
+**Learning:** In this React Native application, rendering complex static SVGs (like game board backgrounds with gradients, grids, and crosses) within a component that also contains frequently updating dynamic elements (like moving game pieces) causes severe frame drops and performance bottlenecks during piece movement animations.
+**Action:** Always extract static complex SVGs into separate components and wrap them in `React.memo` (with an explicitly set `.displayName`) to prevent unnecessary re-renders of the heavy SVG tree when dynamic properties in the parent component change.
