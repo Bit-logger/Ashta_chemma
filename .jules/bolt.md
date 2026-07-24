@@ -1,0 +1,3 @@
+## 2024-05-24 - Memoizing Static SVG Elements in Highly Dynamic Boards
+**Learning:** In games where the board state (e.g. piece positions) updates very frequently (like a 200ms animation loop), rendering a large complex static SVG grid as part of the same component leads to massive unnecessary React diffing and rendering overhead.
+**Action:** Always extract static, unchanging elements (like backgrounds, grids, lines) into their own components wrapped in `React.memo`, passing only the primitive values they need (e.g., width, cell size). This prevents them from re-rendering during dynamic state updates.
