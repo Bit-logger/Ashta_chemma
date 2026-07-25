@@ -36,8 +36,15 @@ export const executeMove = (
     pieceId: string,
     rollValue: number
 ): { state: GameState; scoredPoint: boolean } => {
-    // Deep clone state to avoid mutation (Redux style)
-    const newState = JSON.parse(JSON.stringify(gameState)) as GameState;
+    // ⚡ Bolt Optimization: Replaced slow JSON.parse(JSON.stringify()) with targeted spread clone
+    // This is called frequently during move executions and was a major CPU bottleneck
+    const newState = {
+        ...gameState,
+        players: gameState.players.map(p => ({
+            ...p,
+            pieces: p.pieces.map(piece => ({ ...piece }))
+        }))
+    } as GameState;
 
     const playerIndex = newState.players.findIndex(p => p.id === newState.currentTurnPlayerId);
     const player = newState.players[playerIndex];
