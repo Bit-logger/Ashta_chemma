@@ -11,7 +11,7 @@ type PlayerPieceProps = {
 
 const PIECE_COLORS = ['#FF4136', '#0074D9', '#2ECC40', '#FFDC00']; // Default player colors
 
-export const PlayerPiece: React.FC<PlayerPieceProps> = ({ type, size = 30 }) => {
+export const PlayerPiece: React.FC<PlayerPieceProps> = React.memo(({ type, size = 30 }) => {
     switch (type) {
         case 'bangle':
             return <BanglePiece size={size} color={PIECE_COLORS[0]} />; // Will add dynamic colors later if needed
@@ -24,4 +24,5 @@ export const PlayerPiece: React.FC<PlayerPieceProps> = ({ type, size = 30 }) => 
         default:
             return <BanglePiece size={size} />;
     }
-};
+});
+PlayerPiece.displayName = 'PlayerPiece';
