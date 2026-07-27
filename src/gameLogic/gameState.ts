@@ -26,6 +26,15 @@ export type GameState = {
 };
 
 // Initializer
+// Manually deep clones GameState for performance
+export const cloneGameState = (state: GameState): GameState => ({
+    ...state,
+    players: state.players.map(player => ({
+        ...player,
+        pieces: player.pieces.map(piece => ({ ...piece }))
+    }))
+});
+
 export const initializeGame = (playersData: { id: number; name: string; pieceType: string }[], boardType: BoardType = 'standard'): GameState => {
     const players = playersData.map((p) => ({
         ...p,
