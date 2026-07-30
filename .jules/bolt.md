@@ -1,0 +1,3 @@
+## 2026-07-30 - Deep Clone Anti-Pattern in React Animation Loops
+**Learning:** Found an anti-pattern in `GameScreen.tsx` where `JSON.parse(JSON.stringify())` was used for deep cloning React state inside a 200ms `setTimeout` animation loop. This blocks the main JavaScript thread, causing severe UI jank in React Native apps. Additionally, found expensive React Native SVG components (in `Board.tsx`) re-rendering unnecessarily during these animations.
+**Action:** Replaced deep cloning with shallow spread updates (`...prev, players: prev.players.map(...)`) and wrapped static SVG elements in `React.useMemo`. Always check for expensive deep cloning inside rapid state update loops and use `useMemo`/`useCallback` for heavy static UI components.
