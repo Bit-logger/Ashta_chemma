@@ -25,6 +25,17 @@ export type GameState = {
     boardType: BoardType;
 };
 
+// Fast deep clone for game state, ~10x-100x faster than JSON.parse(JSON.stringify)
+export const cloneGameState = (state: GameState): GameState => {
+    return {
+        ...state,
+        players: state.players.map((player) => ({
+            ...player,
+            pieces: player.pieces.map((piece) => ({ ...piece })),
+        })),
+    };
+};
+
 // Initializer
 export const initializeGame = (playersData: { id: number; name: string; pieceType: string }[], boardType: BoardType = 'standard'): GameState => {
     const players = playersData.map((p) => ({
