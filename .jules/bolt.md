@@ -1,0 +1,3 @@
+## 2024-11-20 - Deep Cloning Performance
+**Learning:** React state updates frequently use `JSON.parse(JSON.stringify(state))` to perform deep clones and avoid mutating state directly. However, when this is done inside an animation frame loop (e.g., `setTimeout` calling a state update every 200ms) or for complex nested state like game boards, it creates significant main thread jank due to serialization overhead.
+**Action:** Replace `JSON.parse(JSON.stringify(state))` with a custom typed shallow-copy cloner function that specifically maps the required nested arrays/objects (e.g., `cloneGameState(state)`).
