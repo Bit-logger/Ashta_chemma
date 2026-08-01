@@ -99,3 +99,12 @@ export const canPieceMove = (piece: PieceState, rollValue: number, player: Playe
 
     return true;
 };
+
+// Helper function to clone game state quickly (avoids JSON.parse/stringify performance hit)
+export const cloneGameState = (state: GameState): GameState => ({
+    ...state,
+    players: state.players.map(p => ({
+        ...p,
+        pieces: p.pieces.map(piece => ({ ...piece }))
+    }))
+});
