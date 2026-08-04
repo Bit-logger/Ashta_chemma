@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import Svg, { Rect, Line, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { getSafeZones, BOARD_SIZE, PLAYER_PATHS, MAX_PATH_INDEX } from '../../constants/board';
@@ -25,30 +25,6 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
         };
     };
 
-    // Helper to draw the cross (X) for Safe Zones (Kachhas)
-    const renderSafeZoneCross = (index: number) => {
-        const { x, y } = getCellCenter(index);
-        const offset = cellSize * 0.35; // How big the cross is relative to the cell
-        return (
-            <React.Fragment key={`safe-${index}`}>
-                <Line
-                    x1={x - offset} y1={y - offset}
-                    x2={x + offset} y2={y + offset}
-                    stroke="rgba(255, 255, 240, 0.85)" // slightly off-white rice flour
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                />
-                <Line
-                    x1={x + offset} y1={y - offset}
-                    x2={x - offset} y2={y + offset}
-                    stroke="rgba(255, 255, 240, 0.85)"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                />
-            </React.Fragment>
-        );
-    };
-
     // Calculate home positions outside the board for each player
     const getHomeCenter = (playerId: number, pieceIndex: number) => {
         const offset = (pieceIndex - 1.5) * 30; // Closer spread
@@ -63,10 +39,38 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
         }
     };
 
-    return (
-        <View style={[styles.container, { width: boardSize, height: boardSize }, styles.boardMargin]}>
-            <Svg height="100%" width="100%" style={styles.svgLayer}>
-                {/* Background Ground Texture / Shadow */}
+    // Memoize the expensive static SVG background to prevent re-renders on every piece animation frame
+    const memoizedBackground = useMemo(() => {
+        // Helper to draw the cross (X) for Safe Zones (Kachhas)
+        const renderSafeZoneCross = (index: number) => {
+            const row = Math.floor(index / BOARD_SIZE);
+            const col = index % BOARD_SIZE;
+            const x = col * cellSize + cellSize / 2;
+            const y = row * cellSize + cellSize / 2;
+            const offset = cellSize * 0.35; // How big the cross is relative to the cell
+            return (
+                <React.Fragment key={`safe-${index}`}>
+                    <Line
+                        x1={x - offset} y1={y - offset}
+                        x2={x + offset} y2={y + offset}
+                        stroke="rgba(255, 255, 240, 0.85)" // slightly off-white rice flour
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                    />
+                    <Line
+                        x1={x + offset} y1={y - offset}
+                        x2={x - offset} y2={y + offset}
+                        stroke="rgba(255, 255, 240, 0.85)"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                    />
+                </React.Fragment>
+            );
+        };
+
+        return (
+            <Svg height="100%" width="100%" style={styles.svgLayer} preserveAspectRatio="xMidYMid slice">
+                 {/* Background Ground Texture / Shadow */}
                 <Defs>
                     <RadialGradient id="groundShadow" cx="50%" cy="50%" rx="50%" ry="50%" fx="50%" fy="50%">
                         <Stop offset="0%" stopColor="#8c5835" stopOpacity="0.6" />
@@ -107,6 +111,12 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
                 {/* Render the Safe Zones (Crosses) */}
                 {getSafeZones(gameState.boardType).map((safeIndex: number) => renderSafeZoneCross(safeIndex))}
             </Svg>
+        );
+    }, [boardSize, cellSize, gameState.boardType]); // Dependencies for background only
+
+    return (
+        <View style={[styles.container, { width: boardSize, height: boardSize }, styles.boardMargin]}>
+            {memoizedBackground}
 
             {/* Render the Pieces dynamically over the board */}
             {gameState.players
