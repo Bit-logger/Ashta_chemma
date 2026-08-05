@@ -49,6 +49,16 @@ export const initializeGame = (playersData: { id: number; name: string; pieceTyp
     };
 };
 
+export const cloneGameState = (state: GameState): GameState => {
+    return {
+        ...state,
+        players: state.players.map(player => ({
+            ...player,
+            pieces: player.pieces.map(piece => ({ ...piece }))
+        }))
+    };
+};
+
 export const canPieceMove = (piece: PieceState, rollValue: number, player: PlayerState, boardType: BoardType): boolean => {
     if (piece.isFinished) return false;
 

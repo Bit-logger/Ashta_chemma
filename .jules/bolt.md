@@ -1,0 +1,3 @@
+## 2023-11-20 - [Performance] Removing JSON.parse(JSON.stringify) for Game State Cloning
+**Learning:** In React Native applications (like this Expo app), relying on `JSON.parse(JSON.stringify())` for cloning deep game state objects can cause significant main thread blocking, particularly when used inside game animation loops (e.g., executing step-by-step piece movements every 200ms).
+**Action:** Always prefer explicit shallow cloning strategies using the spread syntax for specific nested objects when dealing with high-frequency updates, as it provides a major performance boost over complete serialization/deserialization.
