@@ -43,7 +43,7 @@ export default function GameScreen({ navigation, route }: Props) {
         return () => {
             unloadSounds();
         };
-    }, [players]);
+    }, [players, boardType]);
 
     // Auto-move logic: When a player rolls and has EXACTLY ONE valid move, skip the manual tap
     useEffect(() => {
