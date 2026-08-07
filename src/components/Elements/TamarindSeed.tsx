@@ -9,7 +9,8 @@ type SeedProps = {
     isRolling?: boolean;
 };
 
-const TamarindSeed: React.FC<SeedProps> = ({ isOpen, size = 40, isRolling = false }) => {
+// ⚡ Bolt Optimization: Wrapped in React.memo to prevent unnecessary re-renders of complex SVG when props (like isOpen) haven't changed.
+const TamarindSeed: React.NamedExoticComponent<SeedProps> = React.memo(({ isOpen, size = 40, isRolling = false }) => {
 
     const translateY = useSharedValue(0);
     const translateX = useSharedValue(0);
@@ -37,7 +38,7 @@ const TamarindSeed: React.FC<SeedProps> = ({ isOpen, size = 40, isRolling = fals
             // Rotation perfectly tied to air time, no swirling afterwards
             rotate.value = withTiming(rotate.value + randomSpin, { duration: airTime, easing: Easing.out(Easing.ease) });
         }
-    }, [isRolling]);
+    }, [isRolling, rotate, scale, translateX, translateY]);
 
     const animatedStyle = useAnimatedStyle(() => {
         return {
@@ -100,7 +101,9 @@ const TamarindSeed: React.FC<SeedProps> = ({ isOpen, size = 40, isRolling = fals
             </Svg>
         </Animated.View>
     );
-};
+});
+
+TamarindSeed.displayName = 'TamarindSeed';
 
 const styles = StyleSheet.create({
     container: {
