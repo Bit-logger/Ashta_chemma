@@ -113,4 +113,6 @@ const styles = StyleSheet.create({
     }
 });
 
-export default TamarindSeed;
+// ⚡ Bolt Optimization: Memoized TamarindSeed to prevent redundant re-renders
+// when rolling dice logic updates other seeds or game state.
+export default React.memo(TamarindSeed);

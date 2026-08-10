@@ -11,7 +11,9 @@ type PlayerPieceProps = {
 
 const PIECE_COLORS = ['#FF4136', '#0074D9', '#2ECC40', '#FFDC00']; // Default player colors
 
-export const PlayerPiece: React.FC<PlayerPieceProps> = ({ type, size = 30 }) => {
+// ⚡ Bolt Optimization: Memoized PlayerPiece to prevent redundant re-renders
+// when other parts of the game state update but the piece hasn't changed.
+export const PlayerPiece = React.memo(function PlayerPiece({ type, size = 30 }: PlayerPieceProps) {
     switch (type) {
         case 'bangle':
             return <BanglePiece size={size} color={PIECE_COLORS[0]} />; // Will add dynamic colors later if needed
@@ -24,4 +26,4 @@ export const PlayerPiece: React.FC<PlayerPieceProps> = ({ type, size = 30 }) => 
         default:
             return <BanglePiece size={size} />;
     }
-};
+});
