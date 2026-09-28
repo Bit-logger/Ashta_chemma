@@ -189,7 +189,8 @@ export default function GameScreen({ navigation, route }: Props) {
                             if (!isExtraTurn) {
                                 setGameState(prevState => {
                                     if (!prevState) return prevState;
-                                    const nextState: GameState = JSON.parse(JSON.stringify(prevState));
+                                    // ⚡ Bolt: Use shallow clone instead of expensive JSON deep clone
+                                    const nextState: GameState = { ...prevState };
 
                                     let nextIndex = (nextState.players.findIndex(p => p.id === nextState.currentTurnPlayerId) + 1) % nextState.players.length;
                                     while (nextState.players[nextIndex] && nextState.players[nextIndex].rank !== null) {
@@ -272,14 +273,25 @@ export default function GameScreen({ navigation, route }: Props) {
                     const stepPos = path[currentStepIdx];
                     setGameState(tempState => {
                         if (!tempState) return tempState;
-                        const s = JSON.parse(JSON.stringify(tempState)) as GameState;
-                        const pPlayer = s.players.find(p => p.id === ownerId);
-                        if (pPlayer) {
-                            const pPiece = pPlayer.pieces.find(p => p.id === pieceId);
-                            if (pPiece) {
-                                pPiece.position = stepPos;
-                            }
-                        }
+                        // ⚡ Bolt: Avoid JSON.parse(JSON.stringify()) in animation loop to prevent GC stutter
+                        // Targeted shallow clone only for the parts of the state tree we are modifying
+                        const s: GameState = {
+                            ...tempState,
+                            players: tempState.players.map(p => {
+                                if (p.id === ownerId) {
+                                    return {
+                                        ...p,
+                                        pieces: p.pieces.map(piece => {
+                                            if (piece.id === pieceId) {
+                                                return { ...piece, position: stepPos };
+                                            }
+                                            return piece;
+                                        })
+                                    };
+                                }
+                                return p;
+                            })
+                        };
                         return s;
                     });
 

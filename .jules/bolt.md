@@ -1,0 +1,3 @@
+## 2025-02-24 - JSON.parse(JSON.stringify()) inside high-frequency animation loops
+**Learning:** `JSON.parse(JSON.stringify())` was being used inside a React `setGameState` functional update during a 200ms animation loop (`animateStep` in `GameScreen.tsx`). This causes full object tree serialization and deserialization, putting unnecessary pressure on the garbage collector (GC) and potentially leading to micro-stutters in React Native animations, especially on lower-end devices.
+**Action:** Replace `JSON.parse(JSON.stringify())` with targeted shallow cloning for state updates, especially within `requestAnimationFrame` or `setTimeout`/`setInterval` loops. Copy only the nested objects that actually need mutation.
