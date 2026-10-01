@@ -1,0 +1,3 @@
+## 2024-10-01 - Avoid JSON cloning for State Mutations
+**Learning:** `JSON.parse(JSON.stringify())` was used extensively to clone the deeply nested `GameState` object in `src/gameLogic/engine.ts` and `src/screens/GameScreen.tsx`. Since this game is highly interactive (often rendering many times per second during animations and updates), this caused a massive bottleneck (measured ~831ms for 100k iterations vs ~39ms for manual cloning).
+**Action:** Always prefer manual deep cloning (e.g., spreading objects and arrays recursively) over JSON parsing for performance-critical state cloning, especially in tight loops and continuous game states like this React Native app.

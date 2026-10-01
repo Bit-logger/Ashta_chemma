@@ -99,3 +99,14 @@ export const canPieceMove = (piece: PieceState, rollValue: number, player: Playe
 
     return true;
 };
+
+// Fast deep clone for GameState
+export const cloneGameState = (state: GameState): GameState => {
+    return {
+        ...state,
+        players: state.players.map(player => ({
+            ...player,
+            pieces: player.pieces.map(piece => ({ ...piece }))
+        }))
+    };
+};
