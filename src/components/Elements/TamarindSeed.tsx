@@ -9,7 +9,10 @@ type SeedProps = {
     isRolling?: boolean;
 };
 
-const TamarindSeed: React.FC<SeedProps> = ({ isOpen, size = 40, isRolling = false }) => {
+// ⚡ Bolt Optimization: Wrap seed elements in React.memo
+// Seeds are complex SVGs. Preventing them from re-rendering when the turn changes
+// but the dice isn't actively rolling saves animation frame drops.
+const TamarindSeed: React.FC<SeedProps> = React.memo(({ isOpen, size = 40, isRolling = false }) => {
 
     const translateY = useSharedValue(0);
     const translateX = useSharedValue(0);
@@ -100,7 +103,9 @@ const TamarindSeed: React.FC<SeedProps> = ({ isOpen, size = 40, isRolling = fals
             </Svg>
         </Animated.View>
     );
-};
+});
+
+TamarindSeed.displayName = 'TamarindSeed';
 
 const styles = StyleSheet.create({
     container: {

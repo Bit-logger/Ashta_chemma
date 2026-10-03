@@ -1,0 +1,3 @@
+## 2024-10-04 - React Native Animated SVG Re-rendering bottleneck
+**Learning:** In React Native, performing a game loop/animation by doing state updates at 100ms intervals can cause full component trees to re-render, creating massive performance degradation when rendering static UI assets like SVG grids and gradients that remain stationary.
+**Action:** Extract large static complex visual elements (such as SVG backgrounds and grids) using `React.useMemo` and wrap purely presentational un-moving game elements (like `PlayerPiece` and `TamarindSeed` items) in `React.memo` to shield them from the frequent prop/state diffing overhead.
