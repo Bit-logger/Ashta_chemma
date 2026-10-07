@@ -1,0 +1,3 @@
+## 2026-10-07 - Avoid Deep Cloning in Animation Loops
+**Learning:** In React Native, using \`JSON.parse(JSON.stringify(state))\` inside a high-frequency animation loop (like \`setInterval\` or \`setTimeout\` sequences updating pieces on a board) causes severe garbage collection pressure and stutters because it executes on the JS thread. Furthermore, wrapping static, heavy \`Svg\` components inside \`React.memo\` is crucial when they sit alongside dynamically updating state elements.
+**Action:** Always favor shallow-copying objects via spread operators \`...\` over deep cloning when mutating small parts of deep state, especially in game loops or animations. Look for static visual elements (like boards or grid lines) that can be extracted to \`React.memo\` components.
