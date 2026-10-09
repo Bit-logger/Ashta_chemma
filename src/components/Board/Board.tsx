@@ -16,17 +16,17 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
     const cellSize = boardSize / BOARD_SIZE;
 
     // Helper to get center coordinates of a specific cell (0-24)
-    const getCellCenter = (index: number) => {
+    const getCellCenter = React.useCallback((index: number) => {
         const row = Math.floor(index / BOARD_SIZE);
         const col = index % BOARD_SIZE;
         return {
             x: col * cellSize + cellSize / 2,
             y: row * cellSize + cellSize / 2,
         };
-    };
+    }, [cellSize]);
 
     // Helper to draw the cross (X) for Safe Zones (Kachhas)
-    const renderSafeZoneCross = (index: number) => {
+    const renderSafeZoneCross = React.useCallback((index: number) => {
         const { x, y } = getCellCenter(index);
         const offset = cellSize * 0.35; // How big the cross is relative to the cell
         return (
@@ -47,24 +47,11 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
                 />
             </React.Fragment>
         );
-    };
+    }, [cellSize, getCellCenter]);
 
-    // Calculate home positions outside the board for each player
-    const getHomeCenter = (playerId: number, pieceIndex: number) => {
-        const offset = (pieceIndex - 1.5) * 30; // Closer spread
-        const margin = 20; // Tighter distance from the board edge
-
-        switch (playerId) {
-            case 1: return { x: boardSize / 2 + offset, y: boardSize + margin }; // Bottom (22)
-            case 2: return { x: boardSize + margin, y: boardSize / 2 + offset }; // Right (14)
-            case 3: return { x: boardSize / 2 + offset, y: -margin }; // Top (2)
-            case 4: return { x: -margin, y: boardSize / 2 + offset }; // Left (10)
-            default: return { x: 0, y: 0 };
-        }
-    };
-
-    return (
-        <View style={[styles.container, { width: boardSize, height: boardSize }, styles.boardMargin]}>
+    // Memoize the static SVG background to prevent re-rendering during piece animations
+    const boardSvgBackground = React.useMemo(() => {
+        return (
             <Svg height="100%" width="100%" style={styles.svgLayer}>
                 {/* Background Ground Texture / Shadow */}
                 <Defs>
@@ -107,6 +94,26 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
                 {/* Render the Safe Zones (Crosses) */}
                 {getSafeZones(gameState.boardType).map((safeIndex: number) => renderSafeZoneCross(safeIndex))}
             </Svg>
+        );
+    }, [boardSize, cellSize, gameState.boardType, renderSafeZoneCross]);
+
+    // Calculate home positions outside the board for each player
+    const getHomeCenter = (playerId: number, pieceIndex: number) => {
+        const offset = (pieceIndex - 1.5) * 30; // Closer spread
+        const margin = 20; // Tighter distance from the board edge
+
+        switch (playerId) {
+            case 1: return { x: boardSize / 2 + offset, y: boardSize + margin }; // Bottom (22)
+            case 2: return { x: boardSize + margin, y: boardSize / 2 + offset }; // Right (14)
+            case 3: return { x: boardSize / 2 + offset, y: -margin }; // Top (2)
+            case 4: return { x: -margin, y: boardSize / 2 + offset }; // Left (10)
+            default: return { x: 0, y: 0 };
+        }
+    };
+
+    return (
+        <View style={[styles.container, { width: boardSize, height: boardSize }, styles.boardMargin]}>
+            {boardSvgBackground}
 
             {/* Render the Pieces dynamically over the board */}
             {gameState.players
