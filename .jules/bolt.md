@@ -1,0 +1,3 @@
+## 2024-05-24 - React Native SVG Animation Performance
+**Learning:** React Native SVG elements (like `Line`, `Rect`, `RadialGradient` inside an `Svg`) can be expensive to reconcile during frequent state updates. In a game board where state updates frequently (e.g. piece animations updating position every 200ms), leaving the static background elements out in the main render function causes React to diff them continuously.
+**Action:** Always wrap static SVG background elements that do not change (like grid lines and board designs) in `React.useMemo` to prevent React from re-rendering and diffing them on every animation tick or state change.
