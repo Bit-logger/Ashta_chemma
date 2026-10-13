@@ -1,0 +1,3 @@
+## 2025-02-12 - React Native SVG Performance in Game Loops
+**Learning:** React Native SVG components are relatively expensive to re-render. When they are used as static background elements within a component that frequently updates (e.g., during a game loop animating piece positions every 200ms), they will cause severe performance degradation by constantly reconstructing the SVG tree.
+**Action:** Always extract static SVG elements (like grids, lines, gradients, static markings) into their own components and wrap them in `React.memo()` if their parent component updates frequently. Pass primitive props for dimensions and state rather than entire state objects.
