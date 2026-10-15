@@ -1,0 +1,3 @@
+## 2025-02-18 - JS-Driven Animations vs Static Graphics
+**Learning:** This React Native app uses a JS-driven interval (`setTimeout` every 200ms calling `setGameState`) to animate piece movements in `GameScreen.tsx`. This causes the entire `Board` component to re-render 5 times a second. Re-rendering a complex, static `<Svg>` (grid lines, gradients, paths) on every tick creates massive CPU overhead and potential jank.
+**Action:** When working on game boards or complex graphics driven by rapidly changing JS state (like animations or physics), ALWAYS aggressively memoize the static background parts using `React.useMemo` to decouple them from the rapidly changing foreground pieces.
