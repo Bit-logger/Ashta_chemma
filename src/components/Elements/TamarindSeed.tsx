@@ -9,7 +9,7 @@ type SeedProps = {
     isRolling?: boolean;
 };
 
-const TamarindSeed: React.FC<SeedProps> = ({ isOpen, size = 40, isRolling = false }) => {
+const TamarindSeedComponent: React.FC<SeedProps> = ({ isOpen, size = 40, isRolling = false }) => {
 
     const translateY = useSharedValue(0);
     const translateX = useSharedValue(0);
@@ -112,5 +112,11 @@ const styles = StyleSheet.create({
         elevation: 6,
     }
 });
+
+// ⚡ Bolt: Wrapped `TamarindSeedComponent` in `React.memo` to prevent redundant re-renders.
+// 💡 What: TamarindSeed is an expensive animated SVG.
+// 🎯 Why: When GameScreen updates (e.g. from a game tick or piece movement), seeds shouldn't be redrawn unless their props change.
+// 📊 Impact: Significantly minimizes performance overhead by caching these complex nodes.
+const TamarindSeed = React.memo(TamarindSeedComponent);
 
 export default TamarindSeed;
