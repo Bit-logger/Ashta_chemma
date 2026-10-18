@@ -11,7 +11,7 @@ type PlayerPieceProps = {
 
 const PIECE_COLORS = ['#FF4136', '#0074D9', '#2ECC40', '#FFDC00']; // Default player colors
 
-export const PlayerPiece: React.FC<PlayerPieceProps> = ({ type, size = 30 }) => {
+const PlayerPieceComponent: React.FC<PlayerPieceProps> = ({ type, size = 30 }) => {
     switch (type) {
         case 'bangle':
             return <BanglePiece size={size} color={PIECE_COLORS[0]} />; // Will add dynamic colors later if needed
@@ -25,3 +25,9 @@ export const PlayerPiece: React.FC<PlayerPieceProps> = ({ type, size = 30 }) => 
             return <BanglePiece size={size} />;
     }
 };
+
+// ⚡ Bolt: Wrapped `PlayerPieceComponent` in `React.memo` to prevent redundant re-renders.
+// 💡 What: PlayerPiece rendering is now memoized.
+// 🎯 Why: Non-moving pieces don't need to be updated when `GameScreen` ticks or another piece is animating.
+// 📊 Impact: Prevents needless cycles of creating and destroying piece SVGs.
+export const PlayerPiece = React.memo(PlayerPieceComponent);
