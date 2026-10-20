@@ -15,18 +15,20 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
     const boardSize = windowWidth * 0.75; // Reduced to 75% to make room for side pieces
     const cellSize = boardSize / BOARD_SIZE;
 
+    // ⚡ Bolt Optimization: Memoized helper function to prevent unnecessary re-creations during game state updates
     // Helper to get center coordinates of a specific cell (0-24)
-    const getCellCenter = (index: number) => {
+    const getCellCenter = React.useCallback((index: number) => {
         const row = Math.floor(index / BOARD_SIZE);
         const col = index % BOARD_SIZE;
         return {
             x: col * cellSize + cellSize / 2,
             y: row * cellSize + cellSize / 2,
         };
-    };
+    }, [cellSize]);
 
+    // ⚡ Bolt Optimization: Memoized helper function for rendering safe zone crosses
     // Helper to draw the cross (X) for Safe Zones (Kachhas)
-    const renderSafeZoneCross = (index: number) => {
+    const renderSafeZoneCross = React.useCallback((index: number) => {
         const { x, y } = getCellCenter(index);
         const offset = cellSize * 0.35; // How big the cross is relative to the cell
         return (
@@ -47,7 +49,7 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
                 />
             </React.Fragment>
         );
-    };
+    }, [cellSize, getCellCenter]);
 
     // Calculate home positions outside the board for each player
     const getHomeCenter = (playerId: number, pieceIndex: number) => {
@@ -63,8 +65,12 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
         }
     };
 
-    return (
-        <View style={[styles.container, { width: boardSize, height: boardSize }, styles.boardMargin]}>
+    // ⚡ Bolt Optimization: Memoized the heavy SVG background rendering
+    // The background grid and safe zones are static relative to the board type and size.
+    // Memoizing this prevents costly re-renders of the SVG tree on every 200ms game state update during animations.
+    // Expected impact: Significantly smoother piece animations and reduced main thread load.
+    const renderBackground = React.useMemo(() => {
+        return (
             <Svg height="100%" width="100%" style={styles.svgLayer}>
                 {/* Background Ground Texture / Shadow */}
                 <Defs>
@@ -107,6 +113,12 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
                 {/* Render the Safe Zones (Crosses) */}
                 {getSafeZones(gameState.boardType).map((safeIndex: number) => renderSafeZoneCross(safeIndex))}
             </Svg>
+        );
+    }, [boardSize, cellSize, gameState.boardType, renderSafeZoneCross]);
+
+    return (
+        <View style={[styles.container, { width: boardSize, height: boardSize }, styles.boardMargin]}>
+            {renderBackground}
 
             {/* Render the Pieces dynamically over the board */}
             {gameState.players
