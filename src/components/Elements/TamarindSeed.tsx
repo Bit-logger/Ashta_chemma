@@ -9,7 +9,7 @@ type SeedProps = {
     isRolling?: boolean;
 };
 
-const TamarindSeed: React.FC<SeedProps> = ({ isOpen, size = 40, isRolling = false }) => {
+const TamarindSeed: React.FC<SeedProps> = React.memo(({ isOpen, size = 40, isRolling = false }) => {
 
     const translateY = useSharedValue(0);
     const translateX = useSharedValue(0);
@@ -100,7 +100,7 @@ const TamarindSeed: React.FC<SeedProps> = ({ isOpen, size = 40, isRolling = fals
             </Svg>
         </Animated.View>
     );
-};
+});
 
 const styles = StyleSheet.create({
     container: {
