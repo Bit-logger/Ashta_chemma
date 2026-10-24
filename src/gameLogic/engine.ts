@@ -36,8 +36,17 @@ export const executeMove = (
     pieceId: string,
     rollValue: number
 ): { state: GameState; scoredPoint: boolean } => {
-    // Deep clone state to avoid mutation (Redux style)
-    const newState = JSON.parse(JSON.stringify(gameState)) as GameState;
+    // ⚡ Bolt Optimization: Replaced slow JSON.parse(JSON.stringify()) with targeted shallow map spread
+    // 💡 What: Prevents a full blocking copy of the state tree every time a piece moves
+    // 📊 Impact: Substantially reduces main thread blocking during the 200ms animation loop intervals,
+    // eliminating UI stutter and reducing GC pressure on mobile devices.
+    const newState: GameState = {
+        ...gameState,
+        players: gameState.players.map(p => ({
+            ...p,
+            pieces: p.pieces.map(piece => ({ ...piece }))
+        }))
+    };
 
     const playerIndex = newState.players.findIndex(p => p.id === newState.currentTurnPlayerId);
     const player = newState.players[playerIndex];
