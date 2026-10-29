@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import Svg, { Rect, Line, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { getSafeZones, BOARD_SIZE, PLAYER_PATHS, MAX_PATH_INDEX } from '../../constants/board';
@@ -62,6 +62,26 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
             default: return { x: 0, y: 0 };
         }
     };
+
+    // Pre-calculate piece occupancy for each cell to optimize render loop from O(p^2) to O(p)
+    const cellOccupants = useMemo(() => {
+        const occupants: Record<number, string[]> = {};
+        gameState.players.forEach(p => {
+            p.pieces.forEach(piece => {
+                if (piece.position !== -1 && piece.position <= MAX_PATH_INDEX) {
+                    const cellIndex = PLAYER_PATHS[p.id][piece.position];
+                    if (!occupants[cellIndex]) {
+                        occupants[cellIndex] = [];
+                    }
+                    occupants[cellIndex].push(piece.id);
+                }
+            });
+        });
+
+        // Sort piece IDs within each cell so they stack consistently
+        Object.values(occupants).forEach(arr => arr.sort());
+        return occupants;
+    }, [gameState.players]);
 
     return (
         <View style={[styles.container, { width: boardSize, height: boardSize }, styles.boardMargin]}>
@@ -134,16 +154,9 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
                             center = { ...getCellCenter(cellIndex) };
 
                             // Check for other pieces on this same physical cell to offset them
-                            gameState.players.forEach(p => {
-                                p.pieces.forEach(otherPiece => {
-                                    if (otherPiece.position !== -1 && otherPiece.position <= MAX_PATH_INDEX) {
-                                        const otherCellIndex = PLAYER_PATHS[p.id][otherPiece.position];
-                                        if (otherCellIndex === cellIndex && otherPiece.id < piece.id) {
-                                            stackIndex++;
-                                        }
-                                    }
-                                });
-                            });
+                            const occupants = cellOccupants[cellIndex] || [];
+                            stackIndex = occupants.indexOf(piece.id);
+                            if (stackIndex === -1) stackIndex = 0; // fallback in case of desync
 
                             // Apply a slight visual offset diagonally up-right so bottom pieces remain tappable
                             if (stackIndex > 0) {
