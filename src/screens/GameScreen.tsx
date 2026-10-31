@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Modal } from 'r
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/types';
-import { GameState, initializeGame, canPieceMove } from '../gameLogic/gameState';
+import { GameState, initializeGame, canPieceMove, cloneGameState } from '../gameLogic/gameState';
 import { executeMove, checkKill } from '../gameLogic/engine';
 import { PLAYER_PATHS, MAX_PATH_INDEX } from '../constants/board';
 import Board from '../components/Board/Board';
@@ -189,7 +189,7 @@ export default function GameScreen({ navigation, route }: Props) {
                             if (!isExtraTurn) {
                                 setGameState(prevState => {
                                     if (!prevState) return prevState;
-                                    const nextState: GameState = JSON.parse(JSON.stringify(prevState));
+                                    const nextState = cloneGameState(prevState);
 
                                     let nextIndex = (nextState.players.findIndex(p => p.id === nextState.currentTurnPlayerId) + 1) % nextState.players.length;
                                     while (nextState.players[nextIndex] && nextState.players[nextIndex].rank !== null) {
@@ -272,7 +272,7 @@ export default function GameScreen({ navigation, route }: Props) {
                     const stepPos = path[currentStepIdx];
                     setGameState(tempState => {
                         if (!tempState) return tempState;
-                        const s = JSON.parse(JSON.stringify(tempState)) as GameState;
+                        const s = cloneGameState(tempState);
                         const pPlayer = s.players.find(p => p.id === ownerId);
                         if (pPlayer) {
                             const pPiece = pPlayer.pieces.find(p => p.id === pieceId);
