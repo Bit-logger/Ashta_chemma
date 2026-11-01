@@ -25,6 +25,17 @@ export type GameState = {
     boardType: BoardType;
 };
 
+// Deep clone GameState using spread operators instead of JSON.parse(JSON.stringify) for better performance
+export const cloneGameState = (gameState: GameState): GameState => {
+    return {
+        ...gameState,
+        players: gameState.players.map(player => ({
+            ...player,
+            pieces: player.pieces.map(piece => ({ ...piece }))
+        }))
+    };
+};
+
 // Initializer
 export const initializeGame = (playersData: { id: number; name: string; pieceType: string }[], boardType: BoardType = 'standard'): GameState => {
     const players = playersData.map((p) => ({
