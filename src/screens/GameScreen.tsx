@@ -272,15 +272,25 @@ export default function GameScreen({ navigation, route }: Props) {
                     const stepPos = path[currentStepIdx];
                     setGameState(tempState => {
                         if (!tempState) return tempState;
-                        const s = JSON.parse(JSON.stringify(tempState)) as GameState;
-                        const pPlayer = s.players.find(p => p.id === ownerId);
-                        if (pPlayer) {
-                            const pPiece = pPlayer.pieces.find(p => p.id === pieceId);
-                            if (pPiece) {
-                                pPiece.position = stepPos;
-                            }
-                        }
-                        return s;
+
+                        // Shallow clone optimizations to avoid expensive JSON serialization during 200ms animation loop
+                        return {
+                            ...tempState,
+                            players: tempState.players.map(p => {
+                                if (p.id === ownerId) {
+                                    return {
+                                        ...p,
+                                        pieces: p.pieces.map(pc => {
+                                            if (pc.id === pieceId) {
+                                                return { ...pc, position: stepPos };
+                                            }
+                                            return pc;
+                                        })
+                                    };
+                                }
+                                return p;
+                            })
+                        };
                     });
 
                     currentStepIdx++;
