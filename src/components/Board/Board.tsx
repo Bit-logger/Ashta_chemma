@@ -199,4 +199,6 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Board;
+// ⚡ Bolt: Wrapped Board in React.memo to prevent unnecessary re-renders when parent GameScreen state changes (like dice rolls or current turn) but the board props (gameState reference) haven't changed.
+// Expected Impact: Reduces main thread JS overhead during dice roll animations and tray interactions.
+export default React.memo(Board);
