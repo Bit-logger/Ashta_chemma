@@ -113,4 +113,6 @@ const styles = StyleSheet.create({
     }
 });
 
-export default TamarindSeed;
+// ⚡ Bolt: Wrapped TamarindSeed in React.memo to prevent unnecessary re-renders of the unrolled seeds when other seeds are updating or parent state changes.
+// Expected Impact: Avoids re-evaluating unchanged SVG and Reanimated styles for idle seeds.
+export default React.memo(TamarindSeed);
