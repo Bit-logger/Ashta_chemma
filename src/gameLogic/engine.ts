@@ -37,7 +37,7 @@ export const executeMove = (
     rollValue: number
 ): { state: GameState; scoredPoint: boolean } => {
     // Deep clone state to avoid mutation (Redux style)
-    const newState = JSON.parse(JSON.stringify(gameState)) as GameState;
+    const newState = structuredClone(gameState) as GameState;
 
     const playerIndex = newState.players.findIndex(p => p.id === newState.currentTurnPlayerId);
     const player = newState.players[playerIndex];
