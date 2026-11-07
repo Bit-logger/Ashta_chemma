@@ -1,0 +1,3 @@
+## 2025-02-18 - Replacing Deep Cloning with Shallow Cloning in Animation Loops
+**Learning:** Found an anti-pattern where `JSON.parse(JSON.stringify())` was used for deep cloning a complex React state inside a 200ms `setTimeout` animation loop (`animateStep` in `src/screens/GameScreen.tsx`) and the game engine (`executeMove`). This causes massive overhead for garbage collection and CPU usage resulting in choppy animations.
+**Action:** Replace `JSON.parse(JSON.stringify())` with functional state updates using the spread operator (`...`) and shallow mapping over nested structures where only specific properties (e.g., `position` or `currentTurnPlayerId`) are changed. Next time, always scrutinize animation loops for expensive deep cloning or object creation.
