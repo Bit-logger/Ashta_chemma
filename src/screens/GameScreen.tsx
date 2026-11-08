@@ -189,15 +189,17 @@ export default function GameScreen({ navigation, route }: Props) {
                             if (!isExtraTurn) {
                                 setGameState(prevState => {
                                     if (!prevState) return prevState;
-                                    const nextState: GameState = JSON.parse(JSON.stringify(prevState));
 
-                                    let nextIndex = (nextState.players.findIndex(p => p.id === nextState.currentTurnPlayerId) + 1) % nextState.players.length;
-                                    while (nextState.players[nextIndex] && nextState.players[nextIndex].rank !== null) {
-                                        nextIndex = (nextIndex + 1) % nextState.players.length;
+                                    let nextIndex = (prevState.players.findIndex(p => p.id === prevState.currentTurnPlayerId) + 1) % prevState.players.length;
+                                    while (prevState.players[nextIndex] && prevState.players[nextIndex].rank !== null) {
+                                        nextIndex = (nextIndex + 1) % prevState.players.length;
                                     }
 
-                                    nextState.currentTurnPlayerId = nextState.players[nextIndex].id;
-                                    return nextState;
+                                    // ⚡ Bolt: Immutable spread instead of deep clone
+                                    return {
+                                        ...prevState,
+                                        currentTurnPlayerId: prevState.players[nextIndex].id
+                                    };
                                 });
                             }
                             setLastRoll(null);
@@ -272,15 +274,21 @@ export default function GameScreen({ navigation, route }: Props) {
                     const stepPos = path[currentStepIdx];
                     setGameState(tempState => {
                         if (!tempState) return tempState;
-                        const s = JSON.parse(JSON.stringify(tempState)) as GameState;
-                        const pPlayer = s.players.find(p => p.id === ownerId);
-                        if (pPlayer) {
-                            const pPiece = pPlayer.pieces.find(p => p.id === pieceId);
-                            if (pPiece) {
-                                pPiece.position = stepPos;
-                            }
-                        }
-                        return s;
+                        // ⚡ Bolt: Immutable spread to prevent expensive serialization in animation loop
+                        return {
+                            ...tempState,
+                            players: tempState.players.map(p => {
+                                if (p.id === ownerId) {
+                                    return {
+                                        ...p,
+                                        pieces: p.pieces.map(piece =>
+                                            piece.id === pieceId ? { ...piece, position: stepPos } : piece
+                                        )
+                                    };
+                                }
+                                return p;
+                            })
+                        };
                     });
 
                     currentStepIdx++;
