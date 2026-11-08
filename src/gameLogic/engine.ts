@@ -36,13 +36,16 @@ export const executeMove = (
     pieceId: string,
     rollValue: number
 ): { state: GameState; scoredPoint: boolean } => {
-    // Deep clone state to avoid mutation (Redux style)
-    const newState = JSON.parse(JSON.stringify(gameState)) as GameState;
 
-    const playerIndex = newState.players.findIndex(p => p.id === newState.currentTurnPlayerId);
-    const player = newState.players[playerIndex];
-    const pieceIndex = player.pieces.findIndex(p => p.id === pieceId);
-    const piece = player.pieces[pieceIndex];
+    // Instead of deep cloning, we will create an immutable copy of only what needs to change.
+    // ⚡ Bolt: Eliminate deep clones to prevent micro-stutters and GC pressure.
+
+    const currentPlayerId = gameState.currentTurnPlayerId;
+    const player = gameState.players.find(p => p.id === currentPlayerId);
+    if (!player) return { state: gameState, scoredPoint: false };
+
+    const piece = player.pieces.find(p => p.id === pieceId);
+    if (!piece) return { state: gameState, scoredPoint: false };
 
     // Calculate new position progress index
     let nextPosition = piece.position === -1 ? 0 : piece.position + rollValue;
@@ -56,40 +59,65 @@ export const executeMove = (
     // What physical grid square are they landing on?
     const physicalTargetSquare = PLAYER_PATHS[player.id][nextPosition];
 
-    // Check for kills using the physical coordinate
-    const killedPiece = checkKill(newState, physicalTargetSquare, player.id);
+    // Check for kills using the physical coordinate (against the original state, as we haven't moved yet)
+    const killedPiece = checkKill(gameState, physicalTargetSquare, player.id);
+
+    let hasFirstKill = player.hasFirstKill;
+    let victimOwnerId: number | null = null;
+    let victimPieceId: string | null = null;
 
     if (killedPiece) {
-        // Send victim home
-        const victimPlayer = newState.players.find(p => p.id === killedPiece.ownerId);
-        if (victimPlayer) {
-            const vPiece = victimPlayer.pieces.find(p => p.id === killedPiece.id);
-            if (vPiece) vPiece.position = -1; // Sent back!
-        }
-
-        // Grant first kill right if they didn't have it
-        player.hasFirstKill = true;
+        victimOwnerId = killedPiece.ownerId;
+        victimPieceId = killedPiece.id;
+        hasFirstKill = true;
     }
 
+    let isFinished = false;
     let scoredPoint = false;
 
-    // Apply move
-    piece.position = nextPosition;
-    if (piece.position === MAX_PATH_INDEX) {
-        piece.isFinished = true;
+    if (nextPosition === MAX_PATH_INDEX) {
+        isFinished = true;
         scoredPoint = true; // Grabbing center grants an extra turn
-
-        // Check for player completion
-        const isPlayerFinished = player.pieces.every(p => p.isFinished);
-        if (isPlayerFinished && !player.rank) {
-            const currentRanks = newState.players.map(p => p.rank || 0);
-            const maxRank = Math.max(0, ...currentRanks);
-            player.rank = maxRank + 1;
-        }
     }
 
-    newState.movingPieceId = null;
-    newState.currentRollValue = null;
+    // Determine if player has completed all pieces (including this one's new state)
+    const isPlayerFinished = isFinished && player.pieces.every(p => p.id === pieceId ? true : p.isFinished);
+    let newRank = player.rank;
+
+    if (isPlayerFinished && !player.rank) {
+        const currentRanks = gameState.players.map(p => p.rank || 0);
+        const maxRank = Math.max(0, ...currentRanks);
+        newRank = maxRank + 1;
+    }
+
+    const newState: GameState = {
+        ...gameState,
+        movingPieceId: null,
+        currentRollValue: null,
+        players: gameState.players.map(p => {
+            // Update the victim
+            if (p.id === victimOwnerId) {
+                return {
+                    ...p,
+                    pieces: p.pieces.map(vp =>
+                        vp.id === victimPieceId ? { ...vp, position: -1 } : vp
+                    )
+                };
+            }
+            // Update the moving player
+            if (p.id === currentPlayerId) {
+                return {
+                    ...p,
+                    hasFirstKill: hasFirstKill,
+                    rank: newRank,
+                    pieces: p.pieces.map(mp =>
+                        mp.id === pieceId ? { ...mp, position: nextPosition, isFinished: isFinished } : mp
+                    )
+                };
+            }
+            return p;
+        })
+    };
 
     return { state: newState, scoredPoint };
 };
