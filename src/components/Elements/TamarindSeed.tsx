@@ -113,4 +113,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default TamarindSeed;
+export default React.memo(TamarindSeed);
