@@ -16,17 +16,17 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
     const cellSize = boardSize / BOARD_SIZE;
 
     // Helper to get center coordinates of a specific cell (0-24)
-    const getCellCenter = (index: number) => {
+    const getCellCenter = React.useCallback((index: number) => {
         const row = Math.floor(index / BOARD_SIZE);
         const col = index % BOARD_SIZE;
         return {
             x: col * cellSize + cellSize / 2,
             y: row * cellSize + cellSize / 2,
         };
-    };
+    }, [cellSize]);
 
     // Helper to draw the cross (X) for Safe Zones (Kachhas)
-    const renderSafeZoneCross = (index: number) => {
+    const renderSafeZoneCross = React.useCallback((index: number) => {
         const { x, y } = getCellCenter(index);
         const offset = cellSize * 0.35; // How big the cross is relative to the cell
         return (
@@ -47,7 +47,7 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
                 />
             </React.Fragment>
         );
-    };
+    }, [cellSize, getCellCenter]);
 
     // Calculate home positions outside the board for each player
     const getHomeCenter = (playerId: number, pieceIndex: number) => {
@@ -65,7 +65,8 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
 
     return (
         <View style={[styles.container, { width: boardSize, height: boardSize }, styles.boardMargin]}>
-            <Svg height="100%" width="100%" style={styles.svgLayer}>
+            {React.useMemo(() => (
+                <Svg height="100%" width="100%" style={styles.svgLayer}>
                 {/* Background Ground Texture / Shadow */}
                 <Defs>
                     <RadialGradient id="groundShadow" cx="50%" cy="50%" rx="50%" ry="50%" fx="50%" fy="50%">
@@ -107,6 +108,7 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
                 {/* Render the Safe Zones (Crosses) */}
                 {getSafeZones(gameState.boardType).map((safeIndex: number) => renderSafeZoneCross(safeIndex))}
             </Svg>
+            ), [boardSize, cellSize, gameState.boardType, renderSafeZoneCross])}
 
             {/* Render the Pieces dynamically over the board */}
             {gameState.players
