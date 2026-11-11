@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import Svg, { Rect, Line, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { getSafeZones, BOARD_SIZE, PLAYER_PATHS, MAX_PATH_INDEX } from '../../constants/board';
@@ -16,55 +16,19 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
     const cellSize = boardSize / BOARD_SIZE;
 
     // Helper to get center coordinates of a specific cell (0-24)
-    const getCellCenter = (index: number) => {
+    const getCellCenter = React.useCallback((index: number) => {
         const row = Math.floor(index / BOARD_SIZE);
         const col = index % BOARD_SIZE;
         return {
             x: col * cellSize + cellSize / 2,
             y: row * cellSize + cellSize / 2,
         };
-    };
+    }, [cellSize]);
 
-    // Helper to draw the cross (X) for Safe Zones (Kachhas)
-    const renderSafeZoneCross = (index: number) => {
-        const { x, y } = getCellCenter(index);
-        const offset = cellSize * 0.35; // How big the cross is relative to the cell
+    // Memoize the static board SVG which is complex and doesn't need re-rendering
+    // when piece positions update (which happens frequently during animation)
+    const staticBoardSvg = useMemo(() => {
         return (
-            <React.Fragment key={`safe-${index}`}>
-                <Line
-                    x1={x - offset} y1={y - offset}
-                    x2={x + offset} y2={y + offset}
-                    stroke="rgba(255, 255, 240, 0.85)" // slightly off-white rice flour
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                />
-                <Line
-                    x1={x + offset} y1={y - offset}
-                    x2={x - offset} y2={y + offset}
-                    stroke="rgba(255, 255, 240, 0.85)"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                />
-            </React.Fragment>
-        );
-    };
-
-    // Calculate home positions outside the board for each player
-    const getHomeCenter = (playerId: number, pieceIndex: number) => {
-        const offset = (pieceIndex - 1.5) * 30; // Closer spread
-        const margin = 20; // Tighter distance from the board edge
-
-        switch (playerId) {
-            case 1: return { x: boardSize / 2 + offset, y: boardSize + margin }; // Bottom (22)
-            case 2: return { x: boardSize + margin, y: boardSize / 2 + offset }; // Right (14)
-            case 3: return { x: boardSize / 2 + offset, y: -margin }; // Top (2)
-            case 4: return { x: -margin, y: boardSize / 2 + offset }; // Left (10)
-            default: return { x: 0, y: 0 };
-        }
-    };
-
-    return (
-        <View style={[styles.container, { width: boardSize, height: boardSize }, styles.boardMargin]}>
             <Svg height="100%" width="100%" style={styles.svgLayer}>
                 {/* Background Ground Texture / Shadow */}
                 <Defs>
@@ -105,8 +69,49 @@ const Board: React.FC<BoardProps> = ({ gameState, onPiecePress }) => {
                 ))}
 
                 {/* Render the Safe Zones (Crosses) */}
-                {getSafeZones(gameState.boardType).map((safeIndex: number) => renderSafeZoneCross(safeIndex))}
+                {getSafeZones(gameState.boardType).map((safeIndex: number) => {
+                    const { x, y } = getCellCenter(safeIndex);
+                    const offset = cellSize * 0.35; // How big the cross is relative to the cell
+                    return (
+                        <React.Fragment key={`safe-${safeIndex}`}>
+                            <Line
+                                x1={x - offset} y1={y - offset}
+                                x2={x + offset} y2={y + offset}
+                                stroke="rgba(255, 255, 240, 0.85)" // slightly off-white rice flour
+                                strokeWidth="4"
+                                strokeLinecap="round"
+                            />
+                            <Line
+                                x1={x + offset} y1={y - offset}
+                                x2={x - offset} y2={y + offset}
+                                stroke="rgba(255, 255, 240, 0.85)"
+                                strokeWidth="4"
+                                strokeLinecap="round"
+                            />
+                        </React.Fragment>
+                    );
+                })}
             </Svg>
+        );
+    }, [boardSize, cellSize, gameState.boardType, getCellCenter]);
+
+    // Calculate home positions outside the board for each player
+    const getHomeCenter = (playerId: number, pieceIndex: number) => {
+        const offset = (pieceIndex - 1.5) * 30; // Closer spread
+        const margin = 20; // Tighter distance from the board edge
+
+        switch (playerId) {
+            case 1: return { x: boardSize / 2 + offset, y: boardSize + margin }; // Bottom (22)
+            case 2: return { x: boardSize + margin, y: boardSize / 2 + offset }; // Right (14)
+            case 3: return { x: boardSize / 2 + offset, y: -margin }; // Top (2)
+            case 4: return { x: -margin, y: boardSize / 2 + offset }; // Left (10)
+            default: return { x: 0, y: 0 };
+        }
+    };
+
+    return (
+        <View style={[styles.container, { width: boardSize, height: boardSize }, styles.boardMargin]}>
+            {staticBoardSvg}
 
             {/* Render the Pieces dynamically over the board */}
             {gameState.players
